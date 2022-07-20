@@ -66,6 +66,7 @@ class EditDeckState extends State<EditDeck> {
                             ),
                             style: const TextStyle(fontSize: 25),
                             controller: title,
+                            maxLines: null,
                         ),
                     ),
                     Padding(

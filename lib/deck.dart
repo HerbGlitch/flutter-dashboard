@@ -15,6 +15,7 @@ class DeckPage extends StatefulWidget {
 
 class DeckPageState extends State<DeckPage> {
     Deck deck = Deck();
+    List<Card> sortedCards = <Card>[];
 
     @override
     void initState(){
@@ -27,7 +28,10 @@ class DeckPageState extends State<DeckPage> {
             deck.image       = widget.thumbnailDeck.image;
             deck.description = widget.thumbnailDeck.description;
 
-            setState(() { deck = tempDeck; });
+            setState(() {
+                deck = tempDeck;
+                sortedCards = tempDeck.cards;
+            });
         });
     }
 
@@ -72,6 +76,28 @@ class DeckPageState extends State<DeckPage> {
                         onPressed: (){},
                     ),
                 ],
+            ),
+            body: ReorderableListView(
+                shrinkWrap: true,
+                padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
+                children: <Widget>[
+                    for(int i = 0; i < sortedCards.length; i += 1) GestureDetector(
+                        key: Key('$i'),
+                        onTap: (){
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => EditCard(createCard, deleteCard, sortedCards[i])));
+                        },
+                        child: ListTile(
+                            title: Text(sortedCards[i].name),
+                        )
+                    ),
+                ],
+                onReorder: (int old, int current){
+                    setState((){
+                        if(old < current){ current -= 1; }
+                        final Card card = sortedCards.removeAt(old);
+                        sortedCards.insert(current, card);
+                    });
+                },
             ),
             bottomNavigationBar: DeckPageBottomBar(createCard, deleteCard),
         );

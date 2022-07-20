@@ -38,8 +38,11 @@ class Deck {
         data['image'      ] = image;
         data['description'] = description;
 
+        if(cards.length > 0){ data['cards'] = <dynamic>[]; }
         for(Card card in cards){ data['cards'].add(card.toJson()); }
-        for(Tag  tag  in tags ){ data['tags' ].add(tag.toJson() ); }
+
+        if(tags.length > 0){ data['tags'] = <dynamic>[]; }
+        for(Tag tag in tags){ data['tags'].add(tag.toJson()); }
 
         return data;
     }
@@ -62,7 +65,7 @@ class Card {
 
     Card();
 
-    Card.fromData(this.name, this.image, this.description);
+    Card.fromData(this.name, this.image, this.description, this.identifiers, this.notes, this.tags);
 
     Card.fromJson(Map<String, dynamic> data){
         name        = data['name' ];
@@ -70,8 +73,8 @@ class Card {
         description = data['description'];
 
         if(data.containsKey('identifiers')){
-            for(Map<String, dynamic> identifier in data['identifiers']){
-                identifiers.add(identifier['identifier']);
+            for(String identifier in data['identifiers']){
+                identifiers.add(identifier);
             }
         }
 
@@ -96,12 +99,16 @@ class Card {
 
         data['description'] = description;
 
+        if(identifiers.length > 0){ data['identifiers'] = <dynamic>[]; }
         for(String identifier in identifiers){
             data['identifiers'].add(identifier);
         }
 
+        if(notes.length > 0){ data['notes'] = <dynamic>[]; }
         for(Note note in notes){ data['notes'].add(note.toJson()); }
-        for(Tag  tag  in tags ){ data['tags' ].add(tag.toJson() ); }
+
+        if(tags.length > 0){ data['tags'] = <dynamic>[]; }
+        for(Tag tag in tags){ data['tags'].add(tag.toJson()); }
 
         return data;
     }
@@ -113,6 +120,8 @@ class Card {
 class Note {
     bool   private = true;
     String value   = ""  ;
+
+    Note.fromData(this.private, this.value);
 
     Note.fromJson(Map<String, dynamic> data){
         private = data['private'];
@@ -132,6 +141,8 @@ class Note {
 class Tag {
     bool   selected = false;
     String value    = "";
+
+    Tag.fromData(this.selected, this.value);
 
     Tag.fromJson(Map<String, dynamic> data){
         selected = data['selected'];
