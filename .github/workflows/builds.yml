@@ -24,7 +24,7 @@ jobs:
       - uses: actions/upload-artifact@v1
         with:
           name: release-apk
-          path: build/outputs/linux/release/
+          path: build/linux/release/
 
   build_windows:
     runs-on: windows-latest
@@ -38,7 +38,7 @@ jobs:
       - uses: actions/upload-artifact@v1
         with:
           name: release-apk
-          path: build/outputs/windows/release/
+          path: build/windows/release/
 
   build_mac:
     runs-on: macos-latest
@@ -53,7 +53,7 @@ jobs:
       - uses: actions/upload-artifact@v1
         with:
           name: release-apk
-          path: build/app/outputs/macos
+          path: build/macos/release
 
   # build_apk:
   #   runs-on: ubuntu-latest
