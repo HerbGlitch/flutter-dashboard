@@ -23,7 +23,7 @@ jobs:
       - run: flutter build linux
       - uses: actions/upload-artifact@v1
         with:
-          name: release-apk
+          name: release-linux
           path: build/linux
 
   build_windows:
@@ -37,7 +37,7 @@ jobs:
       - run: flutter build windows
       - uses: actions/upload-artifact@v1
         with:
-          name: release-apk
+          name: release-windows
           path: build/windows
 
   build_mac:
@@ -52,7 +52,7 @@ jobs:
       - run: flutter build macos
       - uses: actions/upload-artifact@v1
         with:
-          name: release-apk
+          name: release-macos
           path: build/macos
 
   # build_apk:
