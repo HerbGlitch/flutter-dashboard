@@ -2,9 +2,9 @@ name: Flutter Build
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "build" ]
   pull_request:
-    branches: [ "master" ]
+    branches: [ "build" ]
 
   workflow_dispatch:
 

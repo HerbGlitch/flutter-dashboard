@@ -38,10 +38,10 @@ class Deck {
         data['image'      ] = image;
         data['description'] = description;
 
-        if(cards.length > 0){ data['cards'] = <dynamic>[]; }
+        if(cards.isNotEmpty){ data['cards'] = <dynamic>[]; }
         for(Card card in cards){ data['cards'].add(card.toJson()); }
 
-        if(tags.length > 0){ data['tags'] = <dynamic>[]; }
+        if(tags.isNotEmpty){ data['tags'] = <dynamic>[]; }
         for(Tag tag in tags){ data['tags'].add(tag.toJson()); }
 
         return data;
@@ -99,15 +99,15 @@ class Card {
 
         data['description'] = description;
 
-        if(identifiers.length > 0){ data['identifiers'] = <dynamic>[]; }
+        if(identifiers.isNotEmpty){ data['identifiers'] = <dynamic>[]; }
         for(String identifier in identifiers){
             data['identifiers'].add(identifier);
         }
 
-        if(notes.length > 0){ data['notes'] = <dynamic>[]; }
+        if(notes.isNotEmpty){ data['notes'] = <dynamic>[]; }
         for(Note note in notes){ data['notes'].add(note.toJson()); }
 
-        if(tags.length > 0){ data['tags'] = <dynamic>[]; }
+        if(tags.isNotEmpty){ data['tags'] = <dynamic>[]; }
         for(Tag tag in tags){ data['tags'].add(tag.toJson()); }
 
         return data;
