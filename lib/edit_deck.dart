@@ -13,6 +13,8 @@ class EditDeck extends StatefulWidget {
     State<EditDeck> createState() => EditDeckState();
 }
 
+enum EditDeckImgDropdown { editImage, enterAddress, browseFiles, searchWeb }
+
 class EditDeckState extends State<EditDeck> {
     TextEditingController title       = TextEditingController();
     TextEditingController description = TextEditingController();
@@ -55,7 +57,39 @@ class EditDeckState extends State<EditDeck> {
                 children: <Widget>[
                     Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
-                        child: Image.asset('res/img/img_placeholder.png'),
+                        child: PopupMenuButton<EditDeckImgDropdown>(
+                            child: Image.asset('res/img/img_placeholder.png'),
+                            onSelected: (EditDeckImgDropdown item){
+                                switch(item){
+                                    case EditDeckImgDropdown.editImage:
+                                        break;
+                                    case EditDeckImgDropdown.enterAddress:
+                                        break;
+                                    case EditDeckImgDropdown.browseFiles:
+                                        break;
+                                    case EditDeckImgDropdown.searchWeb:
+                                        break;
+                                }
+                            },
+                            itemBuilder: (BuildContext context) => <PopupMenuEntry<EditDeckImgDropdown>>[
+                                const PopupMenuItem<EditDeckImgDropdown>(
+                                    value: EditDeckImgDropdown.editImage,
+                                    child: Text('Edit image (not working currently)'),
+                                ),
+                                const PopupMenuItem<EditDeckImgDropdown>(
+                                    value: EditDeckImgDropdown.enterAddress,
+                                    child: Text('Enter address (not working currently)'),
+                                ),
+                                const PopupMenuItem<EditDeckImgDropdown>(
+                                    value: EditDeckImgDropdown.browseFiles,
+                                    child: Text('Browse files (not working currently)'),
+                                ),
+                                const PopupMenuItem<EditDeckImgDropdown>(
+                                    value: EditDeckImgDropdown.searchWeb,
+                                    child: Text('Search web (not working currently)'),
+                                ),
+                            ],
+                        ),
                     ),
                     Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),

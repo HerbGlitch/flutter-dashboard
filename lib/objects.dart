@@ -2,6 +2,7 @@ class Deck {
     String title       = "";
     String image       = "";
     String description = "";
+    bool localImage    = true;
 
     List<Card> cards = <Card>[];
     List<Tag>  tags  = <Tag >[];
@@ -17,6 +18,7 @@ class Deck {
         title       = data['title'      ];
         image       = data['image'      ];
         description = data['description'];
+        localImage  = data['localImage '];
 
         if(data.containsKey('cards')){
             for(Map<String, dynamic> subData in data['cards']){
@@ -37,6 +39,7 @@ class Deck {
         data['title'      ] = title;
         data['image'      ] = image;
         data['description'] = description;
+        data['localImage' ] = localImage;
 
         if(cards.isNotEmpty){ data['cards'] = <dynamic>[]; }
         for(Card card in cards){ data['cards'].add(card.toJson()); }

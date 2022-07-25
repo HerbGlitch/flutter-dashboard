@@ -113,7 +113,9 @@ class DashboardDecks extends StatelessWidget {
                     children: [
                         GridTile(
                             footer: GridTileBar(title: Center(child: Text(decks[i].title)), backgroundColor: Colors.black45),
-                            child: Image.asset('res/img/img_placeholder.png'),
+                            child: decks[i].localImage ?
+                                ((decks[i].image == "")? Image.asset('res/img/img_placeholder.png') : Image.asset(decks[i].image)) :
+                                Image.network(decks[i].image),
                         ),
                         Positioned(
                             left: 5.0,
