@@ -4,6 +4,7 @@ import 'package:dashboard/deck.dart';
 import 'package:dashboard/edit_deck.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
+import 'dart:io';
 
 class Dashboard extends StatefulWidget {
     const Dashboard({super.key});
@@ -14,6 +15,7 @@ class Dashboard extends StatefulWidget {
 
 class DashboardState extends State<Dashboard> {
     List<Deck> decks = <Deck>[];
+    String imgRoot = "";
 
     @override
     void initState(){
@@ -31,6 +33,8 @@ class DashboardState extends State<Dashboard> {
 
             setState(() { decks = loadedDecks; });
         }).onError((err, trace){});
+
+        localImgRoot.then((value) => setState((){ imgRoot = value; }));
     }
 
     void writeDecks(){
@@ -43,6 +47,11 @@ class DashboardState extends State<Dashboard> {
     bool createDeck(Deck old, Deck deck){
         if(decks.contains(deck)){ return false; }
 
+        if(deck.localImage && deck.image != ""){
+            copyImgFile(deck.image, '${deck.title}_thumbnail.${deck.image.split('.').last}');
+            deck.image = '${deck.title}_thumbnail.${deck.image.split('.').last}';
+        }
+
         setState((){ decks.add(deck); });
         writeDecks();
 
@@ -53,8 +62,13 @@ class DashboardState extends State<Dashboard> {
     }
 
     bool editDeck(Deck old, Deck deck){
-        if(old == deck){ return true; }
-        if(decks.contains(deck)){ return false; }
+        if(old != deck && decks.contains(deck)){ return false; }
+        if(old.localImage && old.image != ""){ deleteImgFile(old.image); }
+
+        if(deck.localImage && deck.image != ""){
+            copyImgFile(deck.image, '${deck.title}_thumbnail.${deck.image.split('.').last}');
+            deck.image = '${deck.title}_thumbnail.${deck.image.split('.').last}';
+        }
 
         int deckIndex = decks.indexOf(old);
         setState((){ decks[deckIndex] = deck; });
@@ -66,6 +80,7 @@ class DashboardState extends State<Dashboard> {
     }
 
     void deleteDeck(Deck deck){
+        if(deck.localImage && deck.image != ""){ deleteImgFile(deck.image); }
         setState((){ decks.remove(deck); });
 
         writeDecks();
@@ -85,7 +100,7 @@ class DashboardState extends State<Dashboard> {
                     ),
                 ],
             ),
-            body: (decks.isEmpty)? const Center(child: Text('Create a new deck to get started!')) : DashboardDecks(decks, editDeck, deleteDeck),
+            body: (decks.isEmpty)? const Center(child: Text('Create a new deck to get started!')) : DashboardDecks(decks, editDeck, deleteDeck, imgRoot),
             bottomNavigationBar: DashboardBottomBar(createDeck, deleteDeck),
         );
     }
@@ -95,7 +110,9 @@ class DashboardDecks extends StatelessWidget {
     final List<Deck> decks;
     final Function editDeck;
     final Function deleteDeck;
-    const DashboardDecks(this.decks, this.editDeck, this.deleteDeck, {super.key});
+    final String imgRoot;
+
+    const DashboardDecks(this.decks, this.editDeck, this.deleteDeck, this.imgRoot, {super.key});
 
     @override
     Widget build(BuildContext context){
@@ -114,7 +131,7 @@ class DashboardDecks extends StatelessWidget {
                         GridTile(
                             footer: GridTileBar(title: Center(child: Text(decks[i].title)), backgroundColor: Colors.black45),
                             child: decks[i].localImage ?
-                                ((decks[i].image == "")? Image.asset('res/img/img_placeholder.png') : Image.asset(decks[i].image)) :
+                                ((decks[i].image == "")? Image.asset('res/img/img_placeholder.png') : Image.file(File('$imgRoot/${decks[i].image}'))) :
                                 Image.network(decks[i].image),
                         ),
                         Positioned(

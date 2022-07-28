@@ -6,8 +6,18 @@ Future<String> get localRoot async {
     return '${directory.path}/pocket';
 }
 
+Future<String> get localImgRoot async {
+    final root = await localRoot;
+    return '$root/img';
+}
+
 Future<File> localFile(String path) async {
     final root = await localRoot;
+    return File('$root/$path');
+}
+
+Future<File> localImgFile(String path) async {
+    final root = await localImgRoot;
     return File('$root/$path');
 }
 
@@ -21,6 +31,11 @@ Future<File> writeFile(String path, String data) async {
     return file.writeAsString(data);
 }
 
+Future<File> copyImgFile(String originalPath, String copyPath) async {
+    final file = await localImgFile(copyPath);
+    return file.writeAsBytes(File(originalPath).readAsBytesSync());
+}
+
 Future<File> renameFile(String oldPath, String path) async {
     final file = await localFile(oldPath);
     final root = await localRoot;
@@ -32,12 +47,23 @@ Future deleteFile(String path) async {
     file.delete();
 }
 
+Future deleteImgFile(String path) async {
+    final file = await localImgFile(path);
+    file.delete();
+}
+
 Future localInit() async {
     final root = await localRoot;
 
     Directory directory = Directory(root);
     if(!await directory.exists()){
         await directory.create();
+    }
+
+    final imgRoot = await localImgRoot;
+    Directory imgDirectory = Directory(imgRoot);
+    if(!await imgDirectory.exists()){
+        await imgDirectory.create();
     }
 
     final file = await localFile('decks.pocket');

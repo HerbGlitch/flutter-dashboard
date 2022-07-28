@@ -1,5 +1,8 @@
 import 'package:dashboard/objects.dart';
+import 'package:dashboard/files.dart';
 import 'package:flutter/material.dart';
+import 'package:file_picker/file_picker.dart';
+import 'dart:io';
 
 class EditDeck extends StatefulWidget {
     final Function editDeck;
@@ -19,6 +22,10 @@ class EditDeckState extends State<EditDeck> {
     TextEditingController title       = TextEditingController();
     TextEditingController description = TextEditingController();
 
+    String imgPath = "";
+
+    bool localImage = true;
+
     ScrollController scrollController = ScrollController();
 
     bool delete = false;
@@ -29,6 +36,11 @@ class EditDeckState extends State<EditDeck> {
 
         title       = TextEditingController(text: widget.deck.title      );
         description = TextEditingController(text: widget.deck.description);
+
+        setState((){ localImage = widget.deck.localImage; });
+        if(localImage && widget.deck.image != ""){
+            localImgRoot.then((imgRoot) => setState(((){ imgPath = '$imgRoot/${widget.deck.image}'; })));
+        }
     }
 
     @override
@@ -36,6 +48,16 @@ class EditDeckState extends State<EditDeck> {
         title.dispose();
         description.dispose();
         super.dispose();
+    }
+
+    bool editDeck(){
+        String titleStr       = title.text;
+        String descriptionStr = description.text;
+
+        print(imgPath);
+
+        Deck deck = Deck.fromData(titleStr, imgPath, descriptionStr, localImage);
+        return widget.editDeck(widget.deck, deck);
     }
 
     @override
@@ -58,7 +80,9 @@ class EditDeckState extends State<EditDeck> {
                     Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
                         child: PopupMenuButton<EditDeckImgDropdown>(
-                            child: Image.asset('res/img/img_placeholder.png'),
+                            child: localImage?
+                                ((imgPath == "")? Image.asset('res/img/img_placeholder.png') : Image.file(File(imgPath))) :
+                                Image.network(imgPath),
                             onSelected: (EditDeckImgDropdown item){
                                 switch(item){
                                     case EditDeckImgDropdown.editImage:
@@ -66,6 +90,14 @@ class EditDeckState extends State<EditDeck> {
                                     case EditDeckImgDropdown.enterAddress:
                                         break;
                                     case EditDeckImgDropdown.browseFiles:
+                                        FilePicker.platform.pickFiles(type: FileType.image).then((result){
+                                            if(result != null && result.files.first.path != null){
+                                                setState((){
+                                                  localImage = true;
+                                                  imgPath = result.files.first.path.toString();
+                                                });
+                                            }
+                                        });
                                         break;
                                     case EditDeckImgDropdown.searchWeb:
                                         break;
@@ -82,7 +114,7 @@ class EditDeckState extends State<EditDeck> {
                                 ),
                                 const PopupMenuItem<EditDeckImgDropdown>(
                                     value: EditDeckImgDropdown.browseFiles,
-                                    child: Text('Browse files (not working currently)'),
+                                    child: Text('Browse files'),
                                 ),
                                 const PopupMenuItem<EditDeckImgDropdown>(
                                     value: EditDeckImgDropdown.searchWeb,
@@ -165,7 +197,7 @@ class EditDeckState extends State<EditDeck> {
                     ),
                 ],
             ),
-            bottomNavigationBar: EditDeckBottomBar(widget.editDeck, title, description, widget.deck),
+            bottomNavigationBar: EditDeckBottomBar(editDeck, title),
         );
     }
 }
@@ -173,9 +205,7 @@ class EditDeckState extends State<EditDeck> {
 class EditDeckBottomBar extends StatelessWidget {
     final Function editDeck;
     final TextEditingController title;
-    final TextEditingController description;
-    final Deck oldDeck;
-    const EditDeckBottomBar(this.editDeck, this.title, this.description, this.oldDeck, {super.key});
+    const EditDeckBottomBar(this.editDeck, this.title, {super.key});
 
     @override
     Widget build(BuildContext context){
@@ -186,7 +216,7 @@ class EditDeckBottomBar extends StatelessWidget {
                     children: <Widget>[
                         const EditDeckBackBtn(),
                         const Spacer(),
-                        EditDeckSaveBtn(editDeck, title, description, oldDeck)
+                        EditDeckSaveBtn(editDeck, title)
                     ],
                 )
             )
@@ -229,9 +259,7 @@ class EditDeckBackBtn extends StatelessWidget {
 class EditDeckSaveBtn extends StatelessWidget {
     final Function editDeck;
     final TextEditingController title;
-    final TextEditingController description;
-    final Deck oldDeck;
-    const EditDeckSaveBtn(this.editDeck, this.title, this.description, this.oldDeck, {super.key});
+    const EditDeckSaveBtn(this.editDeck, this.title, {super.key});
 
     @override
     Widget build(BuildContext context){
@@ -251,7 +279,7 @@ class EditDeckSaveBtn extends StatelessWidget {
                         ),
                     );
                 }
-                else if(!editDeck(oldDeck, Deck.fromData(title.text, "", description.text))){
+                else if(!editDeck()){
                     showDialog<String>(
                         context: context,
                         builder: (BuildContext context) => AlertDialog(

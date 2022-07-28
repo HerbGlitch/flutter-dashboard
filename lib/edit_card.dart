@@ -75,9 +75,7 @@ class EditCardState extends State<EditCard> {
         //todo: save seleted tags to tagsList
 
         Card card = Card.fromData(nameStr, imageStr, descriptionStr, identifiersList, notesList, tagsList); 
-        widget.editCard(widget.card, card);
-
-        return true;
+        return widget.editCard(widget.card, card);
     }
 
     @override

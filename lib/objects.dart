@@ -1,3 +1,5 @@
+import 'dart:io';
+
 class Deck {
     String title       = "";
     String image       = "";
@@ -12,13 +14,13 @@ class Deck {
 
     Deck();
 
-    Deck.fromData(this.title, this.image, this.description);
+    Deck.fromData(this.title, this.image, this.description, this.localImage);
 
     Deck.fromJson(Map<String, dynamic> data){
         title       = data['title'      ];
         image       = data['image'      ];
         description = data['description'];
-        localImage  = data['localImage '];
+        localImage  = data['localImage' ];
 
         if(data.containsKey('cards')){
             for(Map<String, dynamic> subData in data['cards']){
