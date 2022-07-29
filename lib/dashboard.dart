@@ -15,6 +15,9 @@ class Dashboard extends StatefulWidget {
 
 class DashboardState extends State<Dashboard> {
     List<Deck> decks = <Deck>[];
+    List<Deck> filteredDecks = <Deck>[];
+    TextEditingController search = TextEditingController();
+    bool searching = false;
     String imgRoot = "";
 
     @override
@@ -52,6 +55,9 @@ class DashboardState extends State<Dashboard> {
             deck.image = '${deck.title}_thumbnail.${deck.image.split('.').last}';
         }
 
+        imageCache.clear();
+        imageCache.clearLiveImages();
+
         setState((){ decks.add(deck); });
         writeDecks();
 
@@ -69,6 +75,9 @@ class DashboardState extends State<Dashboard> {
             copyImgFile(deck.image, '${deck.title}_thumbnail.${deck.image.split('.').last}');
             deck.image = '${deck.title}_thumbnail.${deck.image.split('.').last}';
         }
+
+        imageCache.clear();
+        imageCache.clearLiveImages();
 
         int deckIndex = decks.indexOf(old);
         setState((){ decks[deckIndex] = deck; });
@@ -93,14 +102,54 @@ class DashboardState extends State<Dashboard> {
             appBar: AppBar(
                 title: const Text('Campaign Decks'),
                 actions: <Widget>[
-                    IconButton(
-                        icon: const Icon(Icons.search_outlined),
-                        tooltip: 'Search (not working currently)',
-                        onPressed: (){},
-                    ),
+                    if(searching) ...[
+                        Flexible(
+                            child: Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
+                                child: TextField(
+                                    decoration: const InputDecoration(
+                                        border: UnderlineInputBorder(),
+                                        floatingLabelBehavior: FloatingLabelBehavior.never,
+                                        labelText: 'Search',
+                                    ),
+                                    controller: search,
+                                    onChanged: (String value) async {
+                                        if(value != ""){
+                                            setState((){ filteredDecks = decks.where((deck) => deck.title.toLowerCase().contains(value.toLowerCase())).toList(); });
+                                        }
+                                        else {
+                                            setState((){ filteredDecks = decks; });
+                                        }
+                                    },
+                                ),
+                            ),
+                        ),
+                        IconButton(
+                            icon: const Icon(Icons.close_outlined),
+                            onPressed: (){
+                                search.clear();
+                                setState((){ searching = false; });
+                            },
+                        ),
+
+                    ]
+                    else ...[
+                        IconButton(
+                            icon: const Icon(Icons.search_outlined),
+                            tooltip: 'Search',
+                            onPressed: (){
+                                setState((){
+                                    searching = true;
+                                    filteredDecks = decks;
+                                });
+                            },
+                        ),
+                    ],
                 ],
             ),
-            body: (decks.isEmpty)? const Center(child: Text('Create a new deck to get started!')) : DashboardDecks(decks, editDeck, deleteDeck, imgRoot),
+            body: searching?
+                (filteredDecks.isEmpty? const Center(child: Text('No decks match search')) : DashboardDecks(filteredDecks, editDeck, deleteDeck, imgRoot)) :
+                (decks.isEmpty? const Center(child: Text('Create a new deck to get started!')) : DashboardDecks(decks, editDeck, deleteDeck, imgRoot)),
             bottomNavigationBar: DashboardBottomBar(createDeck, deleteDeck),
         );
     }

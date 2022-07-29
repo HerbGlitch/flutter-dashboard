@@ -54,8 +54,6 @@ class EditDeckState extends State<EditDeck> {
         String titleStr       = title.text;
         String descriptionStr = description.text;
 
-        print(imgPath);
-
         Deck deck = Deck.fromData(titleStr, imgPath, descriptionStr, localImage);
         return widget.editDeck(widget.deck, deck);
     }
