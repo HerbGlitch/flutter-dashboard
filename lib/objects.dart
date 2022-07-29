@@ -1,10 +1,9 @@
-import 'dart:io';
-
 class Deck {
     String title       = "";
     String image       = "";
     String description = "";
-    bool localImage    = true;
+
+    bool localImage = true;
 
     List<Card> cards = <Card>[];
     List<Tag>  tags  = <Tag >[];
@@ -61,6 +60,8 @@ class Card {
     String image       = "";
     String description = "";
 
+    bool localImage = true;
+
     List<String> identifiers = <String>[];
     List<Note  > notes       = <Note  >[];
     List<Tag   > tags        = <Tag   >[];
@@ -70,12 +71,13 @@ class Card {
 
     Card();
 
-    Card.fromData(this.name, this.image, this.description, this.identifiers, this.notes, this.tags);
+    Card.fromData(this.name, this.image, this.description, this.localImage, this.identifiers, this.notes, this.tags);
 
     Card.fromJson(Map<String, dynamic> data){
-        name        = data['name' ];
-        image       = data['image'];
+        name        = data['name'       ];
+        image       = data['image'      ];
         description = data['description'];
+        localImage  = data['localImage' ];
 
         if(data.containsKey('identifiers')){
             for(String identifier in data['identifiers']){
@@ -99,10 +101,10 @@ class Card {
     Map<String, dynamic> toJson(){
         Map<String, dynamic> data = <String, dynamic>{};
 
-        data['name' ] = name;
-        data['image'] = image;
-
+        data['name'       ] = name;
+        data['image'      ] = image;
         data['description'] = description;
+        data['localImage' ] = localImage;
 
         if(identifiers.isNotEmpty){ data['identifiers'] = <dynamic>[]; }
         for(String identifier in identifiers){

@@ -1,5 +1,8 @@
+import 'package:dashboard/files.dart';
 import 'package:dashboard/objects.dart';
 import 'package:flutter/material.dart' hide Card;
+import 'package:file_picker/file_picker.dart';
+import 'dart:io';
 
 class EditCard extends StatefulWidget {
     final Function editCard;
@@ -13,6 +16,8 @@ class EditCard extends StatefulWidget {
     State<EditCard> createState() => EditCardState();
 }
 
+enum EditDeckImgDropdown { editImage, enterAddress, browseFiles, removeImage }
+
 class EditCardState extends State<EditCard> {
     TextEditingController name        = TextEditingController();
     TextEditingController description = TextEditingController();
@@ -22,6 +27,10 @@ class EditCardState extends State<EditCard> {
     List<TextEditingController> secretNotes = <TextEditingController>[];
 
     ScrollController scrollController = ScrollController();
+    
+    String imgPath = "";
+
+    bool localImage = true;
 
     bool delete = false;
 
@@ -44,6 +53,10 @@ class EditCardState extends State<EditCard> {
                 notes.add(TextEditingController(text: note.value));
             }
         }
+
+        if(localImage && widget.card.image != ""){
+            localImgRoot.then((imgRoot) => setState((){ imgPath = '$imgRoot/${widget.card.image}'; }));
+        }
     }
 
     @override
@@ -55,7 +68,6 @@ class EditCardState extends State<EditCard> {
 
     bool editCard(){
         String nameStr        = name.text;
-        String imageStr       = "";
         String descriptionStr = description.text;
 
         List<String> identifiersList = <String>[];
@@ -74,7 +86,7 @@ class EditCardState extends State<EditCard> {
         List<Tag> tagsList = <Tag>[];
         //todo: save seleted tags to tagsList
 
-        Card card = Card.fromData(nameStr, imageStr, descriptionStr, identifiersList, notesList, tagsList); 
+        Card card = Card.fromData(nameStr, imgPath, descriptionStr, localImage, identifiersList, notesList, tagsList); 
         return widget.editCard(widget.card, card);
     }
 
@@ -97,7 +109,50 @@ class EditCardState extends State<EditCard> {
                 children: <Widget>[
                     Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
-                        child: Image.asset('res/img/img_placeholder.png'),
+                        child: PopupMenuButton<EditDeckImgDropdown>(
+                            child: localImage?
+                                ((imgPath == "")? Image.asset('res/img/img_placeholder.png') : Image.file(File(imgPath))) :
+                                Image.network(imgPath),
+                            onSelected: (EditDeckImgDropdown item){
+                                switch(item){
+                                    case EditDeckImgDropdown.editImage:
+                                        break;
+                                    case EditDeckImgDropdown.enterAddress:
+                                        break;
+                                    case EditDeckImgDropdown.browseFiles:
+                                        FilePicker.platform.pickFiles(type: FileType.image).then((result){
+                                            if(result != null && result.files.first.path != null){
+                                                setState((){
+                                                    localImage = true;
+                                                    imgPath = result.files.first.path.toString();
+                                                });
+                                            }
+                                        });
+                                        break;
+                                    case EditDeckImgDropdown.removeImage:
+                                        setState((){ imgPath = ""; });
+                                        break;
+                                }
+                            },
+                            itemBuilder: (BuildContext context) => <PopupMenuEntry<EditDeckImgDropdown>>[
+                                const PopupMenuItem<EditDeckImgDropdown>(
+                                    value: EditDeckImgDropdown.editImage,
+                                    child: Text('Edit image (not working currently)'),
+                                ),
+                                const PopupMenuItem<EditDeckImgDropdown>(
+                                    value: EditDeckImgDropdown.enterAddress,
+                                    child: Text('Enter address (not working currently)'),
+                                ),
+                                const PopupMenuItem<EditDeckImgDropdown>(
+                                    value: EditDeckImgDropdown.browseFiles,
+                                    child: Text('Browse files'),
+                                ),
+                                const PopupMenuItem<EditDeckImgDropdown>(
+                                    value: EditDeckImgDropdown.removeImage,
+                                    child: Text('Remove image'),
+                                ),
+                            ],
+                        ),
                     ),
                     Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),

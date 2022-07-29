@@ -1,9 +1,9 @@
-import 'dart:convert';
-
 import 'package:dashboard/files.dart';
 import 'package:dashboard/objects.dart';
 import 'package:dashboard/edit_card.dart';
 import 'package:flutter/material.dart' hide Card;
+import 'dart:convert';
+import 'dart:io';
 
 class DeckPage extends StatefulWidget {
     final Deck thumbnailDeck;
@@ -16,6 +16,7 @@ class DeckPage extends StatefulWidget {
 class DeckPageState extends State<DeckPage> {
     Deck deck = Deck();
     List<Card> sortedCards = <Card>[];
+    String imgRoot = "";
 
     @override
     void initState(){
@@ -33,6 +34,8 @@ class DeckPageState extends State<DeckPage> {
                 sortedCards = tempDeck.cards;
             });
         });
+
+        localImgRoot.then((value) => setState((){ imgRoot = value; }));
     }
 
     void writeDeck(){
@@ -42,6 +45,14 @@ class DeckPageState extends State<DeckPage> {
     bool createCard(Card old, Card card){
         if(deck.cards.contains(card)){ return false; }
 
+        if(card.localImage && card.image != ""){
+            copyImgFile(card.image, '${deck.title}_${card.name}_img.${card.image.split('.').last}');
+            card.image = '${deck.title}_${card.name}_img.${card.image.split('.').last}';
+        }
+
+        imageCache.clear();
+        imageCache.clearLiveImages();
+
         setState((){ deck.cards.add(card); });
         writeDeck();
 
@@ -49,8 +60,16 @@ class DeckPageState extends State<DeckPage> {
     }
 
     bool editCard(Card old, Card card){
-        if(old == card){ return true; }
-        if(deck.cards.contains(card)){ return false; }
+        if(old != card && deck.cards.contains(card)){ return false; }
+        if(old.localImage && old.image != ""){ deleteImgFile(old.image); }
+
+        if(card.localImage && card.image != ""){
+            copyImgFile(card.image, '${deck.title}_${card.name}_img.${card.image.split('.').last}');
+            card.image = '${deck.title}_${card.name}_img.${card.image.split('.').last}';
+        }
+
+        imageCache.clear();
+        imageCache.clearLiveImages();
 
         int deckIndex = deck.cards.indexOf(old);
         setState((){ deck.cards[deckIndex] = card; });
@@ -60,6 +79,7 @@ class DeckPageState extends State<DeckPage> {
     }
 
     void deleteCard(Card card){
+        if(card.localImage && card.image != ""){ deleteImgFile(deck.image); }
         setState((){ deck.cards.remove(card); });
         writeDeck();
     }
@@ -84,11 +104,22 @@ class DeckPageState extends State<DeckPage> {
                     for(int i = 0; i < sortedCards.length; i += 1) GestureDetector(
                         key: Key('$i'),
                         onTap: (){
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => EditCard(createCard, deleteCard, sortedCards[i])));
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => EditCard(editCard, deleteCard, sortedCards[i])));
                         },
-                        child: ListTile(
-                            title: Text(sortedCards[i].name),
-                        )
+                        child: Row(
+                            children: [
+                                if(sortedCards[i].image != "") ...[
+                                    sortedCards[i].localImage?
+                                        Image.file(File('$imgRoot/${sortedCards[i].image}'), height: 50) :
+                                        Image.network(sortedCards[i].image, height: 50),
+                                ],
+                                Flexible(
+                                    child: ListTile(
+                                        title: Text(sortedCards[i].name),
+                                    ),
+                                ),
+                            ],
+                        ),
                     ),
                 ],
                 onReorder: (int old, int current){
@@ -96,6 +127,7 @@ class DeckPageState extends State<DeckPage> {
                         if(old < current){ current -= 1; }
                         final Card card = sortedCards.removeAt(old);
                         sortedCards.insert(current, card);
+                        writeDeck();
                     });
                 },
             ),

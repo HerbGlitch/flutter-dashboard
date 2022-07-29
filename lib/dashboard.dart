@@ -131,7 +131,6 @@ class DashboardState extends State<Dashboard> {
                                 setState((){ searching = false; });
                             },
                         ),
-
                     ]
                     else ...[
                         IconButton(

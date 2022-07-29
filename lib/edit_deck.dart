@@ -16,7 +16,7 @@ class EditDeck extends StatefulWidget {
     State<EditDeck> createState() => EditDeckState();
 }
 
-enum EditDeckImgDropdown { editImage, enterAddress, browseFiles, searchWeb }
+enum EditDeckImgDropdown { editImage, enterAddress, browseFiles, removeImage }
 
 class EditDeckState extends State<EditDeck> {
     TextEditingController title       = TextEditingController();
@@ -39,7 +39,7 @@ class EditDeckState extends State<EditDeck> {
 
         setState((){ localImage = widget.deck.localImage; });
         if(localImage && widget.deck.image != ""){
-            localImgRoot.then((imgRoot) => setState(((){ imgPath = '$imgRoot/${widget.deck.image}'; })));
+            localImgRoot.then((imgRoot) => setState((){ imgPath = '$imgRoot/${widget.deck.image}'; }));
         }
     }
 
@@ -91,13 +91,17 @@ class EditDeckState extends State<EditDeck> {
                                         FilePicker.platform.pickFiles(type: FileType.image).then((result){
                                             if(result != null && result.files.first.path != null){
                                                 setState((){
-                                                  localImage = true;
-                                                  imgPath = result.files.first.path.toString();
+                                                    localImage = true;
+                                                    imgPath = result.files.first.path.toString();
                                                 });
                                             }
                                         });
                                         break;
-                                    case EditDeckImgDropdown.searchWeb:
+                                    case EditDeckImgDropdown.removeImage:
+                                        setState((){
+                                            localImage = true;
+                                            imgPath = "";
+                                        });
                                         break;
                                 }
                             },
@@ -115,8 +119,8 @@ class EditDeckState extends State<EditDeck> {
                                     child: Text('Browse files'),
                                 ),
                                 const PopupMenuItem<EditDeckImgDropdown>(
-                                    value: EditDeckImgDropdown.searchWeb,
-                                    child: Text('Search web (not working currently)'),
+                                    value: EditDeckImgDropdown.removeImage,
+                                    child: Text('Remove image'),
                                 ),
                             ],
                         ),
