@@ -128,7 +128,10 @@ class DashboardState extends State<Dashboard> {
                             icon: const Icon(Icons.close_outlined),
                             onPressed: (){
                                 search.clear();
-                                setState((){ searching = false; });
+                                setState((){
+                                    searching = false;
+                                    filteredDecks = decks;
+                                });
                             },
                         ),
                     ]

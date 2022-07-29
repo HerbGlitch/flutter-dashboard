@@ -16,6 +16,8 @@ class DeckPage extends StatefulWidget {
 class DeckPageState extends State<DeckPage> {
     Deck deck = Deck();
     List<Card> sortedCards = <Card>[];
+    TextEditingController search = TextEditingController();
+    bool searching = false;
     String imgRoot = "";
 
     @override
@@ -88,14 +90,64 @@ class DeckPageState extends State<DeckPage> {
     Widget build(BuildContext context){
         return Scaffold(
             appBar: AppBar(
-                title: Text(widget.thumbnailDeck.title),
-                actions: <Widget>[
-                    IconButton(
-                        icon: const Icon(Icons.search_outlined),
-                        tooltip: 'Search (not working currently)',
-                        onPressed: (){},
-                    ),
-                ],
+                automaticallyImplyLeading: false,
+                title: Row(
+                    children: <Widget>[
+                        IconButton(
+                            icon: const Icon(Icons.arrow_back_outlined),
+                            onPressed: (){
+                                Navigator.pop(context);
+                            },
+                        ),
+                        if(searching) ...[
+                            Flexible(
+                                child: Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
+                                    child: TextField(
+                                        decoration: const InputDecoration(
+                                            border: UnderlineInputBorder(),
+                                            floatingLabelBehavior: FloatingLabelBehavior.never,
+                                            labelText: 'Search',
+                                        ),
+                                        controller: search,
+                                        onChanged: (String value) async {
+                                            if(value != ""){
+                                                setState((){ sortedCards = deck.cards.where((card) => card.name.toLowerCase().contains(value.toLowerCase())).toList(); });
+                                            }
+                                            else {
+                                                setState((){ sortedCards = deck.cards; });
+                                            }
+                                        },
+                                    ),
+                                ),
+                            ),
+                            IconButton(
+                                icon: const Icon(Icons.close_outlined),
+                                onPressed: (){
+                                    search.clear();
+                                    setState((){
+                                        searching = false;
+                                        sortedCards = deck.cards;
+                                    });
+                                },
+                            ),
+                        ]
+                        else ...[
+                            Text(widget.thumbnailDeck.title),
+                            const Spacer(),
+                            IconButton(
+                                icon: const Icon(Icons.search_outlined),
+                                tooltip: 'Search',
+                                onPressed: (){
+                                    setState((){
+                                        searching = true;
+                                        sortedCards = deck.cards;
+                                    });
+                                },
+                            ),
+                        ],
+                    ],
+                ),
             ),
             body: ReorderableListView(
                 shrinkWrap: true,
