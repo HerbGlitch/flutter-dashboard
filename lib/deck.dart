@@ -44,7 +44,7 @@ class DeckPageState extends State<DeckPage> {
         writeFile("${deck.title}.json", json.encode(deck.toJson()));
     }
 
-    bool createCard(Card old, Card card){
+    bool createCard(Card old, Card card, List<Tag> tags){
         if(deck.cards.contains(card)){ return false; }
 
         if(card.localImage && card.image != ""){
@@ -61,7 +61,7 @@ class DeckPageState extends State<DeckPage> {
         return true;
     }
 
-    bool editCard(Card old, Card card){
+    bool editCard(Card old, Card card, List<Tag> tags){
         if(old != card && deck.cards.contains(card)){ return false; }
         if(old.localImage && old.image != ""){ deleteImgFile(old.image); }
 
@@ -156,7 +156,7 @@ class DeckPageState extends State<DeckPage> {
                     for(int i = 0; i < sortedCards.length; i += 1) GestureDetector(
                         key: Key('$i'),
                         onTap: (){
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => EditCard(editCard, deleteCard, sortedCards[i])));
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => EditCard(editCard, deleteCard, sortedCards[i], deck.tags)));
                         },
                         child: Row(
                             children: [
@@ -183,7 +183,7 @@ class DeckPageState extends State<DeckPage> {
                     });
                 },
             ),
-            bottomNavigationBar: DeckPageBottomBar(createCard, deleteCard),
+            bottomNavigationBar: DeckPageBottomBar(createCard, deleteCard, deck.tags),
         );
     }
 }
@@ -191,7 +191,8 @@ class DeckPageState extends State<DeckPage> {
 class DeckPageBottomBar extends StatelessWidget {
     final Function createCard;
     final Function deleteCard;
-    const DeckPageBottomBar(this.createCard, this.deleteCard, {super.key});
+    final List<Tag> tags;
+    const DeckPageBottomBar(this.createCard, this.deleteCard, this.tags, {super.key});
 
     @override
     Widget build(BuildContext context){
@@ -204,7 +205,7 @@ class DeckPageBottomBar extends StatelessWidget {
                             tooltip: 'New Card',
                             icon: const Icon(Icons.add_outlined),
                             onPressed: (){
-                                Navigator.push(context, MaterialPageRoute(builder: (context) => EditCard(createCard, deleteCard, Card())));
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => EditCard(createCard, deleteCard, Card(), tags)));
                             },
                             iconSize: 40,
                         ),

@@ -9,8 +9,9 @@ class EditCard extends StatefulWidget {
     final Function deleteCard;
 
     final Card card;
+    final List<Tag> tags;
 
-    const EditCard(this.editCard, this.deleteCard, this.card, {super.key});
+    const EditCard(this.editCard, this.deleteCard, this.card, this.tags, {super.key});
 
     @override
     State<EditCard> createState() => EditCardState();
@@ -27,7 +28,10 @@ class EditCardState extends State<EditCard> {
     List<TextEditingController> secretNotes = <TextEditingController>[];
 
     ScrollController scrollController = ScrollController();
-    
+
+    List<Tag> tags     = <Tag>[];
+    List<Tag> deckTags = <Tag>[];
+
     String imgPath = "";
 
     bool localImage = true;
@@ -83,11 +87,8 @@ class EditCardState extends State<EditCard> {
             notesList.add(Note.fromData(true, note.text));
         }
 
-        List<Tag> tagsList = <Tag>[];
-        //todo: save seleted tags to tagsList
-
-        Card card = Card.fromData(nameStr, imgPath, descriptionStr, localImage, identifiersList, notesList, tagsList); 
-        return widget.editCard(widget.card, card);
+        Card card = Card.fromData(nameStr, imgPath, descriptionStr, localImage, identifiersList, notesList, tags);
+        return widget.editCard(widget.card, card, deckTags);
     }
 
     @override
@@ -319,6 +320,30 @@ class EditCardState extends State<EditCard> {
                                             final TextEditingController note = secretNotes.removeAt(old);
                                             secretNotes.insert(current, note);
                                         });
+                                    },
+                                ),
+                            ],
+                        )
+                    ),
+                    Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
+                        child: Column(
+                            children: <Widget>[
+                                Row(
+                                    children: <Widget>[
+                                        const Text("Tags:"),
+                                        IconButton(
+                                            onPressed: (){},
+                                            tooltip: "Edit Tags",
+                                            icon: const Icon(Icons.edit_outlined),
+                                        ),
+                                    ],
+                                ),
+                                for(int i = 0; i < tags.length; i++) CheckboxListTile(
+                                    value: tags[i].selected,
+                                    title: Text(tags[i].value),
+                                    onChanged: (bool? value){
+                                        setState((){ tags[i].selected = value!; });
                                     },
                                 ),
                             ],
