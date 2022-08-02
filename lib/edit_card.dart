@@ -10,9 +10,8 @@ class EditCard extends StatefulWidget {
     final Function editTags;
 
     final Card card;
-    final List<Tag> tags;
 
-    const EditCard(this.editCard, this.deleteCard, this.editTags, this.card, this.tags, {super.key});
+    const EditCard(this.editCard, this.deleteCard, this.editTags, this.card, {super.key});
 
     @override
     State<EditCard> createState() => EditCardState();
@@ -30,8 +29,7 @@ class EditCardState extends State<EditCard> {
 
     ScrollController scrollController = ScrollController();
 
-    List<Tag> tags     = <Tag>[];
-    List<Tag> deckTags = <Tag>[];
+    List<Tag> tags = <Tag>[];
 
     String imgPath = "";
 
@@ -63,7 +61,7 @@ class EditCardState extends State<EditCard> {
             localImgRoot.then((imgRoot) => setState((){ imgPath = '$imgRoot/${widget.card.image}'; }));
         }
 
-        tags = widget.tags;
+        tags = widget.card.tags;
     }
 
     @override
@@ -91,7 +89,7 @@ class EditCardState extends State<EditCard> {
         }
 
         Card card = Card.fromData(nameStr, imgPath, descriptionStr, localImage, identifiersList, notesList, tags);
-        return widget.editCard(widget.card, card, deckTags);
+        return widget.editCard(widget.card, card);
     }
 
     @override
@@ -337,7 +335,21 @@ class EditCardState extends State<EditCard> {
                                         const Text("Tags:"),
                                         IconButton(
                                             onPressed: (){
-                                                widget.editTags();
+                                                widget.editTags((){
+                                                    List<Tag> temp = widget.card.tags;
+
+                                                    for(int i = 0; i < temp.length; i++){
+                                                        for(Tag tag in tags){
+                                                            if(tag.value == temp[i].value){
+                                                                temp[i].selected = tag.selected;
+                                                                break;
+                                                            }
+                                                        }
+                                                    }
+
+                                                    setState((){ tags = temp; });
+
+                                                });
                                             },
                                             tooltip: "Edit Tags",
                                             icon: const Icon(Icons.edit_outlined),

@@ -4,8 +4,9 @@ import 'package:flutter/material.dart';
 class EditTagsDialog extends StatefulWidget {
     final Deck deck;
     final Function saveTags;
+    final Function saveCallback;
 
-    const EditTagsDialog(this.deck, this.saveTags, {super.key});
+    const EditTagsDialog(this.deck, this.saveTags, this.saveCallback, {super.key});
 
     @override
     State<EditTagsDialog> createState() => EditTagsDialogState();
@@ -93,6 +94,7 @@ class EditTagsDialogState extends State<EditTagsDialog> {
                                             tags.add(Tag.fromData(false, tagController.text));
                                         }
                                         widget.saveTags(tags);
+                                        widget.saveCallback();
                                         Navigator.pop(context);
                                     },
                                     child: const Text('SAVE', style: TextStyle(fontSize: 15)),

@@ -64,7 +64,7 @@ class DeckPageState extends State<DeckPage> {
         return true;
     }
 
-    bool editCard(Card old, Card card, List<Tag> tags){
+    bool editCard(Card old, Card card){
         if(old != card && deck.cards.contains(card)){ return false; }
         if(old.localImage && old.image != ""){ deleteImgFile(old.image); }
 
@@ -93,20 +93,27 @@ class DeckPageState extends State<DeckPage> {
         setState((){ deck.tags = tags; });
 
         for(int i = 0; i < deck.cards.length; i++){
-            for(Tag tag in deck.cards[i].tags){
-                if(!deck.tags.contains(tag)){
-                    setState((){ deck.cards[i].tags.remove(tag); });
+            List<Tag> temp = deck.tags;
+
+            for(int j = 0; j < temp.length; j++){
+                for(Tag tag in deck.cards[i].tags){
+                    if(tag.value == temp[j].value){
+                        temp[j].selected = tag.selected;
+                        break;
+                    }
                 }
             }
+
+            setState((){ deck.cards[i].tags = temp; });
         }
 
         writeDeck();
     }
 
-    void editTags(){
+    void editTags(Function saveCallback){
         showDialog<String>(
             context: context,
-            builder: (BuildContext context){ return EditTagsDialog(deck, saveTags); }
+            builder: (BuildContext context){ return EditTagsDialog(deck, saveTags, saveCallback); }
         );
     }
 
@@ -180,7 +187,7 @@ class DeckPageState extends State<DeckPage> {
                     for(int i = 0; i < sortedCards.length; i += 1) GestureDetector(
                         key: Key('$i'),
                         onTap: (){
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => EditCard(editCard, deleteCard, editTags, sortedCards[i], deck.tags)));
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => EditCard(editCard, deleteCard, editTags, sortedCards[i])));
                         },
                         child: Row(
                             children: [
@@ -207,7 +214,7 @@ class DeckPageState extends State<DeckPage> {
                     });
                 },
             ),
-            bottomNavigationBar: DeckPageBottomBar(createCard, deleteCard, editTags, deck.tags),
+            bottomNavigationBar: DeckPageBottomBar(createCard, deleteCard, editTags),
         );
     }
 }
@@ -216,8 +223,7 @@ class DeckPageBottomBar extends StatelessWidget {
     final Function createCard;
     final Function deleteCard;
     final Function editTags;
-    final List<Tag> tags;
-    const DeckPageBottomBar(this.createCard, this.deleteCard, this.editTags, this.tags, {super.key});
+    const DeckPageBottomBar(this.createCard, this.deleteCard, this.editTags, {super.key});
 
     @override
     Widget build(BuildContext context){
@@ -230,7 +236,7 @@ class DeckPageBottomBar extends StatelessWidget {
                             tooltip: 'New Card',
                             icon: const Icon(Icons.add_outlined),
                             onPressed: (){
-                                Navigator.push(context, MaterialPageRoute(builder: (context) => EditCard(createCard, deleteCard, editTags, Card(), tags)));
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => EditCard(createCard, deleteCard, editTags, Card())));
                             },
                             iconSize: 40,
                         ),
