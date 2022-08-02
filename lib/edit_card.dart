@@ -7,11 +7,12 @@ import 'dart:io';
 class EditCard extends StatefulWidget {
     final Function editCard;
     final Function deleteCard;
+    final Function editTags;
 
     final Card card;
     final List<Tag> tags;
 
-    const EditCard(this.editCard, this.deleteCard, this.card, this.tags, {super.key});
+    const EditCard(this.editCard, this.deleteCard, this.editTags, this.card, this.tags, {super.key});
 
     @override
     State<EditCard> createState() => EditCardState();
@@ -61,6 +62,8 @@ class EditCardState extends State<EditCard> {
         if(localImage && widget.card.image != ""){
             localImgRoot.then((imgRoot) => setState((){ imgPath = '$imgRoot/${widget.card.image}'; }));
         }
+
+        tags = widget.tags;
     }
 
     @override
@@ -333,7 +336,9 @@ class EditCardState extends State<EditCard> {
                                     children: <Widget>[
                                         const Text("Tags:"),
                                         IconButton(
-                                            onPressed: (){},
+                                            onPressed: (){
+                                                widget.editTags();
+                                            },
                                             tooltip: "Edit Tags",
                                             icon: const Icon(Icons.edit_outlined),
                                         ),
