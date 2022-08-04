@@ -24,7 +24,7 @@ jobs:
       - uses: actions/upload-artifact@v1
         with:
           name: release-linux
-          path: build/linux
+          path: build/linux/x64/release
 
   build_windows:
     runs-on: windows-latest
@@ -38,22 +38,22 @@ jobs:
       - uses: actions/upload-artifact@v1
         with:
           name: release-windows
-          path: build/windows
+          path: build/windows/runner/Release
 
-  build_mac:
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: subosito/flutter-action@v2
-        with:
-          channel: 'beta'
-          architecture: x64
-      - run: flutter config --enable-macos-desktop
-      - run: flutter build macos
-      - uses: actions/upload-artifact@v1
-        with:
-          name: release-macos
-          path: build/macos
+  # build_mac:
+  #   runs-on: macos-latest
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - uses: subosito/flutter-action@v2
+  #       with:
+  #         channel: 'beta'
+  #         architecture: x64
+  #     - run: flutter config --enable-macos-desktop
+  #     - run: flutter build macos
+  #     - uses: actions/upload-artifact@v1
+  #       with:
+  #         name: release-macos
+  #         path: build/macos
 
   # build_apk:
   #   runs-on: ubuntu-latest
