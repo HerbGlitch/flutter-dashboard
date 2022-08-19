@@ -39,8 +39,6 @@ class DeckPageState extends State<DeckPage> {
         });
 
         localImgRoot.then((value) => setState((){ imgRoot = value; }));
-
-
     }
 
     void writeDeck(){
